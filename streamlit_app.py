@@ -10,4 +10,4 @@ streamlit.text('🥑🍞 Avocado Toast')
 
 streamlit.text_input(label="Enter your Healthy Food:", value="Kinky Carrot")
 
-   
+streamlit.header('🍌🥭 Build Your Own Fruit Smoothie 🥝🍇')
