@@ -40,25 +40,38 @@ try:
 except URLError as e:
     streamlit.error()
 
-streamlit.stop()
+# streamlit.stop()
 
 snowflake.connector.paramstyle = 'qmark'
-cnx = snowflake.connector.connect(**streamlit.secrets['snowflake'])
-cur = cnx.cursor()
+conn = snowflake.connector.connect(**streamlit.secrets['snowflake'])
 
-# cur.execute("SELECT CURRENT_USER(), CURRENT_ACCOUNT(), CURRENT_REGION()")
-# data_row = cur.fetchone()
+def get_fruit_load_list(conn=None):
+    if not conn:
+        raise BaseException('snowflake Connection is not provided.')
+    with conn.cursor() as cur:
+        cur.execute("SELECT * from fruit_load_list")
+        return cur.fetchall()
 
-cur.execute("SELECT * from fruit_load_list")
-data = cur.fetchall()
+def insert_fruit(fruit, conn=None):
+    if not conn:
+        raise BaseException('snowflake Connection is not provided.')
+    with conn.cursor() as cur:
+        cur.execute(
+            "INSERT INTO fruit_load_list VALUES (?)", 
+            (add_fruit_choice,)
+        )
 
-streamlit.text("Fruit Load List contains:")
+
+streamlit.header("Fruit Load List contains:")
+
+data = get_fruit_load_list(conn)
 streamlit.dataframe(data)
 
 add_fruit_choice = streamlit.text_input('What fruit would youlike to add?', None)
-if add_fruit_choice:
-    streamlit.write('Thanks for adding ', add_fruit_choice)
-    cur.execute(
-        "INSERT INTO fruit_load_list VALUES (?)", 
-        (add_fruit_choice,)
-    )
+if streamlit.button('Add a Fruit to the List'):
+    if not add_fruit_choice:
+        streamlit.error("Please select a fruit to put in the list.")
+    else:
+        insert_fruit(add_fruit_choice, conn=conn)
+        streamlit.write('Thanks for adding ', add_fruit_choice)
+    
