@@ -33,7 +33,7 @@ fruityvice_response = requests.get("https://fruityvice.com/api/fruit/" + fruit_c
 fruityvice_normalized = pd.json_normalize(fruityvice_response.json())
 streamlit.dataframe(fruityvice_normalized)
 
-
+snowflake.connector.paramstyle = 'qmark'
 cnx = snowflake.connector.connect(**streamlit.secrets['snowflake'])
 cur = cnx.cursor()
 
@@ -45,3 +45,11 @@ data = cur.fetchall()
 
 streamlit.text("Fruit Load List contains:")
 streamlit.dataframe(data)
+
+add_fruit_choice = streamlit.text_input('What fruit would youlike to add?', None)
+if add_fruit_choice:
+    streamlit.write('Thanks for adding ', add_fruit_choice)
+    cur.execute(
+        "INSERT INTO fruit_load_list VALUES (?)", 
+        (add_fruit_choice,)
+    )
