@@ -4,13 +4,7 @@ import pandas as pd
 
 import snowflake.connector
 
-cnx = snowflake.connector.connect(**streamlit.secrets['snowflake'])
-cur = cnx.cursor()
-cur.execute("SELECT CURRENT_USER(), CURRENT_ACCOUNT(), CURRENT_REGION()")
-data_row = cur.fetchone()
 
-streamlit.text("Hello form Snowflake:")
-streamlit.text(data_row)
 
 streamlit.title("My Mom's New Healthy Diner")
 
@@ -39,3 +33,15 @@ fruityvice_response = requests.get("https://fruityvice.com/api/fruit/" + fruit_c
 fruityvice_normalized = pd.json_normalize(fruityvice_response.json())
 streamlit.dataframe(fruityvice_normalized)
 
+
+cnx = snowflake.connector.connect(**streamlit.secrets['snowflake'])
+cur = cnx.cursor()
+
+# cur.execute("SELECT CURRENT_USER(), CURRENT_ACCOUNT(), CURRENT_REGION()")
+# data_row = cur.fetchone()
+
+cur.execute("SELECT * from fruit_load_list")
+data = cur.fetchall()
+
+streamlit.text("Fruit Load List contains:")
+streamlit.dataframe(data)
