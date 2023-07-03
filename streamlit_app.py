@@ -43,7 +43,7 @@ except URLError as e:
 # streamlit.stop()
 
 snowflake.connector.paramstyle = 'qmark'
-conn = snowflake.connector.connect(**streamlit.secrets['snowflake'])
+
 
 def get_fruit_load_list(conn=None):
     if not conn:
@@ -64,14 +64,18 @@ def insert_fruit(fruit, conn=None):
 
 streamlit.header("Fruit Load List contains:")
 
-data = get_fruit_load_list(conn)
-streamlit.dataframe(data)
+if streamlit.button('Get Fruit List'):
+    conn = snowflake.connector.connect(**streamlit.secrets['snowflake'])
+    data = get_fruit_load_list(conn)
+    conn.close()    
+    streamlit.dataframe(data)
 
 add_fruit_choice = streamlit.text_input('What fruit would youlike to add?', None)
 if streamlit.button('Add a Fruit to the List'):
     if not add_fruit_choice:
         streamlit.error("Please select a fruit to put in the list.")
     else:
+        conn = snowflake.connector.connect(**streamlit.secrets['snowflake'])
         insert_fruit(add_fruit_choice, conn=conn)
         streamlit.write('Thanks for adding ', add_fruit_choice)
     
